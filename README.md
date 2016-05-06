@@ -17,7 +17,7 @@ necessary if [KeyboardEvent.key](https://developer.mozilla.org/en-US/docs/Web/AP
 
 The **webkeys** library was developed to support the [PAMELA](https://github.com/dollabs/pamela) suite of tools.
 
-*TBD* API docs (will be linked from [dollabs.github.io](http://dollabs.github.io/))
+See the [API docs](http://dollabs.github.io/webkeys/doc/api/)
 
 ## Building
 
