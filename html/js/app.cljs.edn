@@ -4,7 +4,7 @@
 ;; Apache License, Version 2.0 which can be found in
 ;; the file LICENSE at the root of this distribution.
 
-{:require [webkeys.ws]
+{:require [webkeys.keys]
  :compiler-options {:asset-path "js/app.out"
                     :source-map true
                     :source-map-timestamp true

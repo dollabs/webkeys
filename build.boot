@@ -5,31 +5,29 @@
 ;; the file LICENSE at the root of this distribution.
 
 (def project 'dollabs/webkeys)
-(def version "0.2.0")
+(def version "0.4.0")
 (def description "Cross browser key event mangement in ClojureScript")
 (def project-url "https://github.com/dollabs/webkeys")
 
 (set-env! :resource-paths #{"src"}
-  :source-paths   #{"test"}
+  ;; :source-paths   #{"test"}
   :dependencies   '[[org.clojure/clojure "1.8.0" :scope "provided"]
-                    [org.clojure/clojurescript "1.8.51" :scope "provided"]
-                    [org.clojure/core.async "0.2.374"]
-                    [com.cognitect/transit-cljs "0.8.237"]
+                    [org.clojure/clojurescript "1.9.293" :scope "provided"]
                     [avenir "0.2.1"]
                     ;; cljs-dev
                     [com.cemerick/piggieback "0.2.1"     :scope "test"]
                     [weasel                 "0.7.0"      :scope "test"]
                     [org.clojure/tools.nrepl "0.2.12"    :scope "test"]
-                    [adzerk/boot-reload     "0.4.8"      :scope "test"]
-                    [pandeiro/boot-http "0.7.3" :scope "test"]
-                    [adzerk/boot-cljs       "1.7.228-1"  :scope "test"]
-                    [adzerk/boot-cljs-repl  "0.3.0"      :scope "test"]
+                    [adzerk/boot-reload     "0.4.13"      :scope "test"]
+                    [pandeiro/boot-http "0.7.6" :scope "test"]
+                    [adzerk/boot-cljs       "1.7.228-2"  :scope "test"]
+                    [adzerk/boot-cljs-repl  "0.3.3"      :scope "test"]
                     ;; testing/development
-                    [adzerk/boot-test "1.1.1" :scope "test"]
-                    [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
+                    ;; [adzerk/boot-test "1.1.1" :scope "test"]
+                    ;; [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
                     [adzerk/bootlaces "0.1.13" :scope "test"]
                     ;; api docs
-                    [boot-codox "0.9.5" :scope "test"]
+                    [boot-codox "0.10.1" :scope "test"]
                     ])
 
 (require
@@ -37,8 +35,8 @@
   '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl repl-env]]
   '[pandeiro.boot-http :refer [serve]]
   '[adzerk.boot-reload    :refer [reload]]
-  '[adzerk.boot-test :refer [test]]
-  '[crisptrutski.boot-cljs-test :refer [test-cljs]]
+  ;; '[adzerk.boot-test :refer [test]]
+  ;; '[crisptrutski.boot-cljs-test :refer [test-cljs]]
   '[adzerk.bootlaces :refer :all]
   '[codox.boot :refer [codox]])
 
@@ -52,8 +50,8 @@
        :scm         {:url project-url}
        :license     {"Apache-2.0" "http://opensource.org/licenses/Apache-2.0"}}
   cljs {:source-map true}
-  test-cljs {:js-env :phantom
-             :namespaces #{"testing.webkeys.keys" "testing.webkeys.keygen"}}
+  ;; test-cljs {:js-env :phantom
+  ;;            :namespaces #{"testing.webkeys.keys" "testing.webkeys.keygen"}}
   codox {:language :clojurescript
          :source-paths ["src"]
          :name (name project)
@@ -79,20 +77,20 @@
   []
   (cljs-dev))
 
-(deftask testing
-  "merge source paths in for testing"
-  []
-  (merge-env! :source-paths #{"test"})
-  identity)
+;; (deftask testing
+;;   "merge source paths in for testing"
+;;   []
+;;   (merge-env! :source-paths #{"test"})
+;;   identity)
 
-(deftask tests
-  "Test CLJS and leave artifacts in target for debugging"
-  [e js-env VAL kw "Set the :js-env for test-cljs (:phantom)."]
-  (comp
-    (sift :add-resource #{"html"})
-    (testing)
-    (test-cljs :js-env (or js-env :phantom))
-    (target :dir #{"target"})))
+;; (deftask tests
+;;   "Test CLJS and leave artifacts in target for debugging"
+;;   [e js-env VAL kw "Set the :js-env for test-cljs (:phantom)."]
+;;   (comp
+;;     (sift :add-resource #{"html"})
+;;     (testing)
+;;     (test-cljs :js-env (or js-env :phantom))
+;;     (target :dir #{"target"})))
 
 (deftask build-cljs
   "Compile ClojureScript"

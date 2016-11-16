@@ -6,16 +6,20 @@
 
 (ns webkeys.keys
   "Cross browser key event mangement in ClojureScript"
-  (:require [clojure.string :as string]))
-
-(defn xor [a b]
-  (or (and a (not b)) (and (not a) b)))
+  (:require [clojure.string :as string]
+            [avenir.utils :refer [xor]]))
 
 (def SHIFT_KEY 16)
 (def CTRL_KEY 17)
 (def ALT_KEY 18)
 (def CAPS_LOCK 20)
-(def META_KEY 224)
+(def META_KEY 91)
+
+(def SHIFT_KEY_NAME "Shift")
+(def CTRL_KEY_NAME "Control")
+(def ALT_KEY_NAME "Alt")
+(def CAPS_LOCK_NAME "CapsLock")
+(def META_KEY_NAME "Meta")
 
 (def SHIFT_OFFSET 256)
 (def CTRL_OFFSET 512)
@@ -23,38 +27,75 @@
 (def META_OFFSET 2048)
 
 (def extra-keys-initial
-  {SHIFT_KEY false ;; :shift-key
-   CTRL_KEY false ;; :ctrl-key
-   ALT_KEY false ;; :alt-key
-   CAPS_LOCK false ;; :caps-lock
-   META_KEY false ;; :meta-key
+  {SHIFT_KEY_NAME false ;; :shift-key
+   CTRL_KEY_NAME false ;; :ctrl-key
+   ALT_KEY_NAME false ;; :alt-key
+   CAPS_LOCK_NAME false ;; :caps-lock
+   ;; Disable Meta for now (problematic on Mac OS X)
+   ;; META_KEY_NAME false ;; :meta-key
    })
 
 (def extra-keys-set (set (keys extra-keys-initial)))
 
 (def extra-keys (atom extra-keys-initial))
 
+(defn reset-extra-keys! []
+  (reset! extra-keys extra-keys-initial))
+
 (defn shift? []
   (let [ek @extra-keys]
-    (xor (get ek SHIFT_KEY) (get ek CAPS_LOCK))))
+    (xor (get ek SHIFT_KEY_NAME) (get ek CAPS_LOCK_NAME))))
 
 (defn extra-keys-text []
   (let [ek @extra-keys
-        shift (if (xor (get ek SHIFT_KEY) (get ek CAPS_LOCK)) "Shift ")
-        ctrl (if (get ek CTRL_KEY) "Control ")
-        alt  (if (get ek ALT_KEY) "Alt ")
-        metak (if (get ek META_KEY) "Meta ")]
-    (str metak alt ctrl shift)))
+        shift (if (xor (get ek SHIFT_KEY_NAME) (get ek CAPS_LOCK_NAME)) "Shift ")
+        ctrl (if (get ek CTRL_KEY_NAME) "Control ")
+        alt  (if (get ek ALT_KEY_NAME) "Alt ")
+        metak (if (get ek META_KEY_NAME) "Meta ")]
+    (str metak (if metak " ")
+      alt (if alt " ")
+      ctrl (if ctrl " ")
+      shift (if shift " "))))
+
+(def no-shift-prefix
+  #{"0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "10"
+    "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+    "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"
+    "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M"
+    "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z"
+    ";" "=" "-" "," "." "/" "`" "[" "\\" "]"
+    "'" "!" "@" "#" "$" "%" "^" "&" "*" "(" ")"
+    ":" "+" "<" "_" ">" "?" "~" "{" "|" "}" "\""
+    })
+
+(defn needs-shift-prefix? [key]
+  (not (no-shift-prefix key)))
+
+(defn extra-keys-prefix [key & [ek]]
+  (if-not (extra-keys-set key)
+    (let [ek (or ek @extra-keys)
+          shift (if (and (xor (get ek SHIFT_KEY_NAME) (get ek CAPS_LOCK_NAME))
+                      (needs-shift-prefix? key))
+                  "S-")
+          ctrl (if (get ek CTRL_KEY_NAME) "C-")
+          alt  (if (get ek ALT_KEY_NAME) "A-")
+          metak (if (get ek META_KEY) "M-")]
+      (str metak alt ctrl shift))))
 
 (defn register-key-fn [id key-fn]
   (swap! extra-keys assoc id key-fn))
 
 (def key-translation
-  {8 "Backspace",
+  {0 "Unidentified",
+   8 "Backspace",
    9 "Tab",
    12 "Clear",
    13 "Enter",
+   SHIFT_KEY SHIFT_KEY_NAME,
+   CTRL_KEY CTRL_KEY_NAME,
+   ALT_KEY ALT_KEY_NAME,
    19 "Pause",
+   CAPS_LOCK CAPS_LOCK_NAME,
    27 "Escape",
    32 " ",
    33 "PageUp",
@@ -106,7 +147,7 @@
    88 "x",
    89 "y",
    90 "z",
-   91 "Windows",
+   META_KEY META_KEY_NAME, ;; Windows, OS
    112 "F1",
    113 "F2",
    114 "F3",
@@ -134,7 +175,11 @@
    265 "S-Tab",
    268 "S-Clear",
    269 "S-Enter",
+   272 SHIFT_KEY_NAME,
+   273 CTRL_KEY_NAME,
+   274 ALT_KEY_NAME,
    275 "S-Pause",
+   276 CAPS_LOCK_NAME,
    283 "S-Escape",
    288 "S- ",
    289 "S-PageUp",
@@ -215,7 +260,11 @@
    521 "C-Tab",
    524 "C-Clear",
    525 "C-Enter",
+   528 SHIFT_KEY_NAME,
+   529 CTRL_KEY_NAME,
+   530 ALT_KEY_NAME,
    531 "C-Pause",
+   532 CAPS_LOCK_NAME,
    539 "C-Escape",
    544 "C- ",
    545 "C-PageUp",
@@ -295,7 +344,11 @@
    777 "C-S-Tab",
    780 "C-S-Clear",
    781 "C-S-Enter",
+   784 SHIFT_KEY_NAME,
+   785 CTRL_KEY_NAME,
+   786 ALT_KEY_NAME,
    787 "C-S-Pause",
+   788 CAPS_LOCK_NAME,
    795 "C-S-Escape",
    800 "C-S- ",
    801 "C-S-PageUp",
@@ -376,7 +429,11 @@
    1033 "A-Tab",
    1036 "A-Clear",
    1037 "A-Enter",
+   1040 SHIFT_KEY_NAME,
+   1041 CTRL_KEY_NAME,
+   1042 ALT_KEY_NAME,
    1043 "A-Pause",
+   1044 CAPS_LOCK_NAME,
    1051 "A-Escape",
    1056 "A- ",
    1057 "A-PageUp",
@@ -456,7 +513,11 @@
    1289 "A-S-Tab",
    1292 "A-S-Clear",
    1293 "A-S-Enter",
+   1296 SHIFT_KEY_NAME,
+   1297 CTRL_KEY_NAME,
+   1298 ALT_KEY_NAME,
    1299 "A-S-Pause",
+   1300 CAPS_LOCK_NAME,
    1307 "A-S-Escape",
    1312 "A-S- ",
    1313 "A-S-PageUp",
@@ -537,7 +598,11 @@
    1545 "A-C-Tab",
    1548 "A-C-Clear",
    1549 "A-C-Enter",
+   1552 SHIFT_KEY_NAME,
+   1553 CTRL_KEY_NAME,
+   1554 ALT_KEY_NAME,
    1555 "A-C-Pause",
+   1556 CAPS_LOCK_NAME,
    1563 "A-C-Escape",
    1568 "A-C- ",
    1569 "A-C-PageUp",
@@ -617,7 +682,11 @@
    1801 "A-C-S-Tab",
    1804 "A-C-S-Clear",
    1805 "A-C-S-Enter",
+   1808 SHIFT_KEY_NAME,
+   1809 CTRL_KEY_NAME,
+   1810 ALT_KEY_NAME,
    1811 "A-C-S-Pause",
+   1812 CAPS_LOCK_NAME,
    1819 "A-C-S-Escape",
    1824 "A-C-S- ",
    1825 "A-C-S-PageUp",
@@ -698,38 +767,58 @@
 
 (defn event->key [kc]
   (let [ek @extra-keys
-        shift (if (xor (get ek SHIFT_KEY) (get ek CAPS_LOCK)) SHIFT_OFFSET 0)
-        ctrl (if (get ek CTRL_KEY) CTRL_OFFSET 0)
-        alt  (if (get ek ALT_KEY) ALT_OFFSET 0)
-        metak (if (get ek META_KEY) META_OFFSET 0)
+        shift (if (xor (get ek SHIFT_KEY_NAME) (get ek CAPS_LOCK_NAME))
+                SHIFT_OFFSET 0)
+        ctrl (if (get ek CTRL_KEY_NAME) CTRL_OFFSET 0)
+        alt  (if (get ek ALT_KEY_NAME) ALT_OFFSET 0)
+        metak (if (get ek META_KEY_NAME) META_OFFSET 0)
         k (+ metak alt ctrl shift kc)
         key (get key-translation k)]
-    (or key (str "Unknown-" k))))
+    (or key (str "Unknown-" k)))) ;; consider using key-orig
 
-(defn default-key-fn [key]
-  (println "KEY" key))
+(defn default-key-fn [& args]
+  (let [[key id e] args]
+    ;; (println "DEFAULT KEY" key "ID" id) ;; DEBUG
+    ))
 
-;; do NOT forward keyboard events from input controls
+(defn default-extra-fn [& args]
+  (let [[key id e] args]
+    ;; (println "EXTRA KEY" key "ID" id "⎇" (extra-keys-text)) ;; DEBUG
+    ))
+
 (defn keydown [e]
-  (let [kc (.-keyCode e)
-        ek @extra-keys]
-    ;; (println "KEYDOWN" kc "Extra?" (extra-keys-set kc))
-    (if (extra-keys-set kc)
-      (do
-        (if (= kc CAPS_LOCK)
-          (swap! extra-keys update-in [CAPS_LOCK] not)
-          (swap! extra-keys assoc kc true))
-        ((get ek :extra (fn [])))  ;; call extra key handler, if any
-        )
-      (let [id (.-id (.-target e))
-            key (event->key kc)
-            key-fn (get ek id (get ek :default default-key-fn))]
-        (key-fn key)))))
+  (let [ek @extra-keys
+        target (.-target e)
+        id (keyword (.-id target))
+        ;; key-orig (.-key e) ;; DEBUG
+        kc (.-keyCode e)
+        key (event->key kc)]
+    ;; (println "KEYDOWN" key "=" key-orig kc id) ;; DEBUG
+    (if (extra-keys-set key)
+      (let [extra-id (keyword (str "extra" id))
+            extra-fn (or (get ek extra-id)
+                       (get ek :extra)
+                       default-extra-fn)]
+        (if (= key CAPS_LOCK_NAME)
+          (swap! extra-keys update-in [CAPS_LOCK_NAME] not)
+          (swap! extra-keys assoc key true))
+        (extra-fn key id e))
+       (let [key-fn (get ek id (get ek :default default-key-fn))]
+        (key-fn key id e)))))
 
 (defn keyup [e]
-  (let [kc (.-keyCode e)]
-    ;; (println "KEYUP" kc "Extra?" (extra-keys-set kc))
-    (when (and (extra-keys-set kc) (not= kc CAPS_LOCK))
-      (swap! extra-keys assoc kc false)
-      ((get @extra-keys :extra (fn []))) ;; call extra key handler, if any
-      )))
+  (let [ek @extra-keys
+        target (.-target e)
+        id (keyword (.-id target))
+        ;; key-orig (.-key e) ;; DEBUG
+        kc (.-keyCode e)
+        key (event->key kc)]
+    ;; (println "KEYUP" key "=" key-orig kc id) ;; DEBUG
+    (when (and (extra-keys-set key) (not= key CAPS_LOCK_NAME))
+      (let [extra-id (keyword (str "extra" id))
+            extra-fn (or (get ek extra-id)
+                       (get ek :extra)
+                       default-extra-fn)]
+        (swap! extra-keys assoc key false)
+        (extra-fn key id e)))
+    ))
