@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### [Unreleased]
 
 Changed
-- *TBD*
+- Removed cider references from build.boot
 
 ### [0.4.0] - 2016-11-11
 
