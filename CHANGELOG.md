@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 
 Changed
 - Removed cider references from build.boot
+- Updated dependencies
 
 ### [0.4.0] - 2016-11-11
 

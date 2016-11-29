@@ -9,25 +9,27 @@
 (def description "Cross browser key event mangement in ClojureScript")
 (def project-url "https://github.com/dollabs/webkeys")
 
-(set-env! :resource-paths #{"src"}
+(set-env!
+  :resource-paths #{"src"}
   ;; :source-paths   #{"test"}
-  :dependencies   '[[org.clojure/clojure "1.8.0" :scope "provided"]
-                    [org.clojure/clojurescript "1.9.293" :scope "provided"]
+  :dependencies   '[[org.clojure/clojure       "1.8.0"     :scope "provided"]
+                    [org.clojure/clojurescript "1.9.293"   :scope "provided"]
                     [avenir "0.2.1"]
                     ;; cljs-dev
-                    [com.cemerick/piggieback "0.2.1"     :scope "test"]
-                    [weasel                 "0.7.0"      :scope "test"]
-                    [org.clojure/tools.nrepl "0.2.12"    :scope "test"]
-                    [adzerk/boot-reload     "0.4.13"      :scope "test"]
-                    [pandeiro/boot-http "0.7.6" :scope "test"]
-                    [adzerk/boot-cljs       "1.7.228-2"  :scope "test"]
-                    [adzerk/boot-cljs-repl  "0.3.3"      :scope "test"]
+                    [com.cemerick/piggieback   "0.2.1"     :scope "test"]
+                    [weasel                    "0.7.0"     :scope "test"]
+                    [org.clojure/tools.nrepl   "0.2.12"    :scope "test"]
+                    [adzerk/boot-reload        "0.4.13"    :scope "test"]
+                    [pandeiro/boot-http        "0.7.6"     :scope "test"]
+                    [adzerk/boot-cljs          "1.7.228-2" :scope "test"]
+                    [adzerk/boot-cljs-repl     "0.3.3"     :scope "test"]
                     ;; testing/development
                     ;; [adzerk/boot-test "1.1.1" :scope "test"]
-                    ;; [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT" :scope "test"]
-                    [adzerk/bootlaces "0.1.13" :scope "test"]
+                    ;; [crisptrutski/boot-cljs-test "0.2.2-SNAPSHOT"
+                    ;;   :scope "test"]
+                    [adzerk/bootlaces          "0.1.13"    :scope "test"]
                     ;; api docs
-                    [boot-codox "0.10.1" :scope "test"]
+                    [boot-codox                "0.10.2"    :scope "test"]
                     ])
 
 (require
@@ -91,7 +93,6 @@
       (pom)
       (jar)
       (target :dir dir))))
-
 
 (deftask local
   "Build jar and install to local repo."
