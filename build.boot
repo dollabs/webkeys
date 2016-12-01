@@ -5,7 +5,7 @@
 ;; the file LICENSE at the root of this distribution.
 
 (def project 'dollabs/webkeys)
-(def version "0.4.0")
+(def version "0.4.1")
 (def description "Cross browser key event mangement in ClojureScript")
 (def project-url "https://github.com/dollabs/webkeys")
 
