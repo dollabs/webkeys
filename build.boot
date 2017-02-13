@@ -5,21 +5,20 @@
 ;; the file LICENSE at the root of this distribution.
 
 (def project 'dollabs/webkeys)
-(def version "0.4.1")
+(def version "0.4.2-SNAPSHOT")
 (def description "Cross browser key event mangement in ClojureScript")
 (def project-url "https://github.com/dollabs/webkeys")
 
 (set-env!
   :resource-paths #{"src"}
-  ;; :source-paths   #{"test"}
   :dependencies   '[[org.clojure/clojure       "1.8.0"     :scope "provided"]
-                    [org.clojure/clojurescript "1.9.293"   :scope "provided"]
-                    [avenir "0.2.1"]
+                    [org.clojure/clojurescript "1.9.473"   :scope "provided"]
+                    [avenir "0.2.2"]
                     ;; cljs-dev
                     [com.cemerick/piggieback   "0.2.1"     :scope "test"]
                     [weasel                    "0.7.0"     :scope "test"]
                     [org.clojure/tools.nrepl   "0.2.12"    :scope "test"]
-                    [adzerk/boot-reload        "0.4.13"    :scope "test"]
+                    [adzerk/boot-reload        "0.5.1"     :scope "test"]
                     [pandeiro/boot-http        "0.7.6"     :scope "test"]
                     [adzerk/boot-cljs          "1.7.228-2" :scope "test"]
                     [adzerk/boot-cljs-repl     "0.3.3"     :scope "test"]
@@ -29,7 +28,7 @@
                     ;;   :scope "test"]
                     [adzerk/bootlaces          "0.1.13"    :scope "test"]
                     ;; api docs
-                    [boot-codox                "0.10.2"    :scope "test"]
+                    [boot-codox                "0.10.3"    :scope "test"]
                     ])
 
 (require
@@ -51,7 +50,8 @@
        :url         project-url
        :scm         {:url project-url}
        :license     {"Apache-2.0" "http://opensource.org/licenses/Apache-2.0"}}
-  cljs {:source-map true}
+  cljs {:optimizations :advanced} ;; for production
+  serve {:dir "target/public"}
   ;; test-cljs {:js-env :phantom
   ;;            :namespaces #{"testing.webkeys.keys" "testing.webkeys.keygen"}}
   codox {:language :clojurescript
@@ -80,19 +80,57 @@
   "Compile ClojureScript"
   []
   (comp
+    (notify
+      :visual true
+      :title "CLJS"
+      :messages {:success "http://localhost:3000 is ready\n"})
+    (speak)
     (sift :include #{#"~$"} :invert true) ;; don't include emacs backups
     (cljs)
     (target :dir #{"target"})))
 
-(deftask build
-  "Build the project locally as a JAR."
-  [d dir PATH #{str} "the set of directories to write to (target)."]
-  (let [dir (if (seq dir) dir #{"target"})]
-    (comp
-      (sift :include #{#"~$"} :invert true) ;; don't include emacs backups
-      (pom)
-      (jar)
-      (target :dir dir))))
+(deftask development
+  "Example task to change ClojureScript options for development"
+  [p port PORT int "The port for the ClojureScript nREPL"]
+  (task-options!
+    cljs {:optimizations :none :source-map true}
+    reload {;; :ws-port 9001
+            }
+    repl {:port (or port 8082)
+          :middleware '[cemerick.piggieback/wrap-cljs-repl]})
+  identity)
+
+;; This will start an nREPL server on 8082 that a remote IDE
+;; can connect to for the CLJS REPL.
+(deftask cljs-dev
+  "Starts CLJS nREPL"
+  [p port PORT int "The port for the ClojureScript nREPL"]
+  (comp
+    (development :port port)
+    (serve)
+    (watch)
+    (reload)
+    (cljs-repl)
+    (build-cljs)))
+
+;; For Emacs if you Customize your Cider Boot Parameters to 'cider-boot'
+;; then this task will be invoked upon M-x cider-jack-in-clojurescript
+;; which is on C-c M-J
+;; CIDER will then open two REPL buffers for you, one for CLJS
+;; and another for CLJ. FFI:
+;; https://cider.readthedocs.io/en/latest/up_and_running/#clojurescript-usage
+
+;; This task is commented out here for users that have not copied
+;; a profile.boot file to ~/.boot/ which defines the cider task:
+;;
+;; (deftask cider-boot
+;;   "Cider boot params task"
+;;   []
+;;   (comp
+;;     (cider) ;; defined in profile.boot
+;;     ;; FFI https://github.com/boot-clj/boot/wiki/Cider-REPL
+;;     ;;     https://cider.readthedocs.io/en/latest/installation/
+;;     (cljs-dev)))
 
 (deftask local
   "Build jar and install to local repo."
