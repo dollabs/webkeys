@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. This change
 ### [Unreleased]
 
 Changed
+- _TBD_
+
+### [0.4.2] - 2017-02-15
+
+Changed
 - Updated dependencies
 - Update CLJS REPL support
 
@@ -42,4 +47,5 @@ Added
 [0.2.0]: https://github.com/dollabs/webkeys/compare/0.1.0...0.2.0
 [0.4.0]: https://github.com/dollabs/webkeys/compare/0.2.0...0.4.0
 [0.4.1]: https://github.com/dollabs/webkeys/compare/0.4.0...0.4.1
-[Unreleased]: https://github.com/dollabs/webkeys/compare/0.4.1...HEAD
+[0.4.2]: https://github.com/dollabs/webkeys/compare/0.4.1...0.4.2
+[Unreleased]: https://github.com/dollabs/webkeys/compare/0.4.2...HEAD

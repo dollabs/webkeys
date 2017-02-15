@@ -5,7 +5,7 @@
 ;; the file LICENSE at the root of this distribution.
 
 (def project 'dollabs/webkeys)
-(def version "0.4.2-SNAPSHOT")
+(def version "0.4.2")
 (def description "Cross browser key event mangement in ClojureScript")
 (def project-url "https://github.com/dollabs/webkeys")
 
@@ -51,7 +51,7 @@
        :scm         {:url project-url}
        :license     {"Apache-2.0" "http://opensource.org/licenses/Apache-2.0"}}
   cljs {:optimizations :advanced} ;; for production
-  serve {:dir "target/public"}
+  serve {:dir "target"}
   ;; test-cljs {:js-env :phantom
   ;;            :namespaces #{"testing.webkeys.keys" "testing.webkeys.keygen"}}
   codox {:language :clojurescript
